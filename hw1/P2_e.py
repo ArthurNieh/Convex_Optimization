@@ -1,0 +1,16 @@
+import cvxpy as cp
+
+# epsilon = 1
+# epsilon = 1e-4
+epsilon = 1e-10
+x1 = cp.Variable()
+x2 = cp.Variable()
+
+objective = cp.Minimize(cp.square(x1 + x2 - 1) + epsilon * cp.square(x2))
+constraints = [x1 + x2 == 2, x1 >= 1, x2 >= 0]
+
+problem = cp.Problem(objective, constraints)
+problem.solve()
+print("Optimal value:", problem.value)
+print("Optimal x1:", x1.value)
+print("Optimal x2:", x2.value)
