@@ -52,12 +52,14 @@ def solve_by_cvxpy(a):
     z = a @ x
     
     objective = cp.Minimize(
-        cp.log_sum_exp(cp.hstack([0, z])) + 0.5 * cp.sum_squares(x)
+        cp.log_sum_exp(cp.hstack([0, a.T @ x])) + 0.5 * cp.sum_squares(x)
     )
     problem = cp.Problem(objective)
     problem.solve()
+
     print("cvxpy Optimal value:", problem.value)
     print("cvxpy Optimal x:", x.value)
+    return problem.value, x.value
 
 if __name__ == "__main__":
     alpha = 0.25
@@ -91,7 +93,8 @@ if __name__ == "__main__":
 
         x = x + NT_step * t
 
-    print("Optimal value:", get_function_value(x,a))
+    optimal_value = get_function_value(x, a)
+    print("Optimal value:", optimal_value)
     print("Optimal x:", x)
 
     plt.title('objective value vs. iteration')
@@ -99,7 +102,7 @@ if __name__ == "__main__":
     plt.xlabel('iteration')
     plt.plot(objective, 'b-o')
     plt.savefig('objective_value.png')
-    plt.show()
+    # plt.show()
 
     plt.title('Newton decrement squared divided by 2 vs. iteration')
     plt.ylabel('Newton decrement squared divided by 2')
@@ -107,7 +110,12 @@ if __name__ == "__main__":
     plt.plot(NT_decrement,'b-o')
     plt.yscale('log')
     plt.savefig('decrement.png')
-    plt.show()
+    # plt.show()
 
-    solve_by_cvxpy(a)
+    cvx_value, cvx_x = solve_by_cvxpy(a)
+
+    # print("cvxpy Optimal value:", cvx_value)
+    # print("cvxpy Optimal x:", cvx_x)
+    print("Difference in optimal value:", abs(optimal_value - cvx_value))
+    print("Difference in optimal x:", np.linalg.norm(x - cvx_x))
     
